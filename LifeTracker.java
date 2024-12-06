@@ -76,9 +76,8 @@ public class LifeTracker {
     }
 
     public double calculateBMI() {
-        // Convert height from feet to meters
-        double heightInMeters = height * 0.3048;
-        return weight / (heightInMeters * heightInMeters);
+        double height = height * 0.3048;
+        return weight / (height * height);
     }
 
     public void displayLifeInfo() {
