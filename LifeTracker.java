@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LifeTracker {
-    // Private data members
+
     private String name;
     private int age;
     private double weight;
@@ -10,7 +10,6 @@ public class LifeTracker {
     private List<String> goals;
     private List<String> dailyTasks;
 
-    // Constructor
     public LifeTracker(String name, int age, double weight, double height) {
         this.name = name;
         this.age = age;
@@ -20,7 +19,6 @@ public class LifeTracker {
         this.dailyTasks = new ArrayList<>();
     }
 
-    // Public getter and setter methods
     public String getName() {
         return name;
     }
@@ -53,7 +51,6 @@ public class LifeTracker {
         this.height = height;
     }
 
-    // Public methods to manage goals
     public void addGoal(String goal) {
         goals.add(goal);
     }
@@ -66,7 +63,6 @@ public class LifeTracker {
         return new ArrayList<>(goals);
     }
 
-    // Public methods to manage daily tasks
     public void addDailyTask(String task) {
         dailyTasks.add(task);
     }
@@ -79,20 +75,31 @@ public class LifeTracker {
         return new ArrayList<>(dailyTasks);
     }
 
-    // Public utility method
     public double calculateBMI() {
-        return weight / (height * height);
+        // Convert height from feet to meters
+        double heightInMeters = height * 0.3048;
+        return weight / (heightInMeters * heightInMeters);
     }
 
-    // Public method to display all information
     public void displayLifeInfo() {
         System.out.println("Name: " + name);
         System.out.println("Age: " + age);
         System.out.println("Weight: " + weight + " kg");
-        System.out.println("Height: " + height + " m");
+        System.out.println("Height: " + height + " ft");
         System.out.println("BMI: " + String.format("%.2f", calculateBMI()));
         System.out.println("Goals: " + goals);
         System.out.println("Daily Tasks: " + dailyTasks);
-        
+    }
+
+    public static void main(String[] args) {
+        LifeTracker tracker = new LifeTracker("Shaun", 18, 80, 5.11);
+
+        tracker.addGoal("Learn a new language");
+        tracker.addGoal("Exercise regularly");
+
+        tracker.addDailyTask("Meditate for 10 minutes");
+        tracker.addDailyTask("Read for 30 minutes");
+
+        tracker.displayLifeInfo();
     }
 }
