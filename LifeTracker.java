@@ -1,8 +1,8 @@
 import java.util.Scanner;
 
 public class LifeTracker {
-    // Activity inner class
-    private static class Activity {
+    // Abstract class for Activity
+    private abstract static class Activity {
         private String description;
         private boolean isGoal;
 
@@ -19,9 +19,35 @@ public class LifeTracker {
             return isGoal;
         }
 
+        public abstract String getType();
+
         @Override
         public String toString() {
-            return description;
+            return description + " (" + getType() + ")";
+        }
+    }
+
+    // GoalActivity subclass
+    private static class GoalActivity extends Activity {
+        public GoalActivity(String description) {
+            super(description, true);
+        }
+
+        @Override
+        public String getType() {
+            return "Goal";
+        }
+    }
+
+    // TaskActivity subclass
+    private static class TaskActivity extends Activity {
+        public TaskActivity(String description) {
+            super(description, false);
+        }
+
+        @Override
+        public String getType() {
+            return "Task";
         }
     }
 
@@ -94,7 +120,11 @@ public class LifeTracker {
 
     // Method overloading for adding activities
     public void addActivity(String description, boolean isGoal) {
-        addActivity(new Activity(description, isGoal));
+        if (isGoal) {
+            addActivity(new GoalActivity(description));
+        } else {
+            addActivity(new TaskActivity(description));
+        }
     }
 
     public void addActivity(Activity activity) {
@@ -160,7 +190,7 @@ public class LifeTracker {
         return weight / (heightInMeters * heightInMeters);
     }
 
-    public void displayLifeInfo() {
+    public final void displayLifeInfo() {
         System.out.println("Name: " + name);
         System.out.println("Age: " + age);
         System.out.println("Weight: " + weight + " kg");
@@ -211,29 +241,52 @@ public class LifeTracker {
         scanner.nextLine(); // Consume the newline
 
         while (true) {
-            System.out.println("\nEnter an activity (or 'quit' to finish):");
-            String activity = scanner.nextLine();
-            if (activity.equalsIgnoreCase("quit")) {
-                break;
+            System.out.println("\nMenu:");
+            System.out.println("1. Add an Activity");
+            System.out.println("2. Remove an Activity");
+            System.out.println("3. View Life Info");
+            System.out.println("4. Quit");
+            System.out.print("Choose an option: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume the newline
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter activity description: ");
+                    String activity = scanner.nextLine();
+                    System.out.print("Is this a goal? (yes/no): ");
+                    boolean isGoal = scanner.nextLine().equalsIgnoreCase("yes");
+
+                    // Demonstrating operator overloading
+                    if (isGoal) {
+                        tracker = tracker.plus(new GoalActivity(activity));
+                    } else {
+                        tracker = tracker.plus(new TaskActivity(activity));
+                    }
+                    System.out.println("Activity added successfully.");
+                    break;
+
+                case 2:
+                    System.out.print("Enter activity description to remove: ");
+                    String activityToRemove = scanner.nextLine();
+                    tracker.removeActivity(activityToRemove);
+                    System.out.println("Activity removed successfully.");
+                    break;
+
+                case 3:
+                    System.out.println("\nLife Info:");
+                    tracker.displayLifeInfo();
+                    break;
+
+                case 4:
+                    System.out.println("Exiting the program. Goodbye!");
+                    scanner.close();
+                    return;
+
+                default:
+                    System.out.println("Invalid choice. Please try again.");
             }
-            System.out.print("Is this a goal? (yes/no): ");
-            boolean isGoal = scanner.nextLine().equalsIgnoreCase("yes");
-
-            // Demonstrating operator overloading
-            tracker = tracker.plus(new Activity(activity, isGoal));
         }
-
-        System.out.println("\nUpdated Life Info:");
-        tracker.displayLifeInfo();
-
-        System.out.print("\nEnter an activity to remove: ");
-        String activityToRemove = scanner.nextLine();
-        tracker.removeActivity(activityToRemove);
-
-        System.out.println("\nFinal Life Info:");
-        tracker.displayLifeInfo();
-
-        scanner.close();
     }
 }
-
