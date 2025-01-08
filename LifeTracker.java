@@ -1,97 +1,60 @@
 import java.util.Scanner;
 
-public class LifeTracker {
-    // Abstract class for Activity
-    private abstract static class Activity {
-        private String description;
-        private boolean isGoal;
-
-        public Activity(String description, boolean isGoal) {
-            this.description = description;
-            this.isGoal = isGoal;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public boolean isGoal() {
-            return isGoal;
-        }
-
-        public abstract String getType();
-
-        @Override
-        public String toString() {
-            return description + " (" + getType() + ")";
-        }
-    }
-
-    // GoalActivity subclass
-    private static class GoalActivity extends Activity {
-        public GoalActivity(String description) {
-            super(description, true);
-        }
-
-        @Override
-        public String getType() {
-            return "Goal";
-        }
-    }
-
-    // TaskActivity subclass
-    private static class TaskActivity extends Activity {
-        public TaskActivity(String description) {
-            super(description, false);
-        }
-
-        @Override
-        public String getType() {
-            return "Task";
-        }
-    }
-
-    // LifeTracker class
+class Person {
     private String name;
     private int age;
-    private double weight; // in kg
-    private double height; // in feet
-    private Activity[] activities;
-    private int activityCount;
 
-    // Constructor overloading
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getGreeting() {
+        return "Hello, my name is " + name + " and I am " + age + " years old.";
+    }
+}
+
+class Activity {
+    private String description;
+
+    public Activity(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+}
+
+class GoalActivity extends Activity {
+    public GoalActivity(String description) {
+        super(description);
+    }
+}
+
+class TaskActivity extends Activity {
+    public TaskActivity(String description) {
+        super(description);
+    }
+}
+
+
+public class LifeTracker extends Person {
+    private double weight;
+    private double height;
+    private Activity[] goals;
+    private int goalsCount;
+    private Activity[] dailyTasks;
+    private int dailyTasksCount;
+
     public LifeTracker(String name, int age, double weight, double height) {
-        this(name, age, weight, height, 10); // Default capacity of 10
-    }
-
-    public LifeTracker(String name, int age, double weight, double height, int initialCapacity) {
-        this.name = name;
-        setAge(age);
-        setWeight(weight);
-        setHeight(height);
-        this.activities = new Activity[initialCapacity];
-        this.activityCount = 0;
-    }
-
-    // Getter and setter methods
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        if (age > 0) {
-            this.age = age;
-        } else {
-            throw new IllegalArgumentException("Age must be positive");
-        }
+        super(name, age);  // Call the superclass constructor
+        this.weight = weight;
+        this.height = height;
+        this.goals = new Activity[10];
+        this.dailyTasks = new Activity[10];
+        this.goalsCount = 0;
+        this.dailyTasksCount = 0;
     }
 
     public double getWeight() {
@@ -99,11 +62,7 @@ public class LifeTracker {
     }
 
     public void setWeight(double weight) {
-        if (weight > 0) {
-            this.weight = weight;
-        } else {
-            throw new IllegalArgumentException("Weight must be positive");
-        }
+        this.weight = weight;
     }
 
     public double getHeight() {
@@ -111,134 +70,114 @@ public class LifeTracker {
     }
 
     public void setHeight(double height) {
-        if (height > 0) {
-            this.height = height;
+        this.height = height;
+    }
+
+    public void addGoal(Activity goal) {
+        if (goalsCount < goals.length) {
+            goals[goalsCount++] = goal;
         } else {
-            throw new IllegalArgumentException("Height must be positive");
+            Activity[] newGoals = new Activity[goals.length * 2];
+            System.arraycopy(goals, 0, newGoals, 0, goals.length);
+            goals = newGoals;
+            goals[goalsCount++] = goal;
         }
     }
 
-    // Method overloading for adding activities
-    public void addActivity(String description, boolean isGoal) {
-        if (isGoal) {
-            addActivity(new GoalActivity(description));
-        } else {
-            addActivity(new TaskActivity(description));
-        }
-    }
-
-    public void addActivity(Activity activity) {
-        if (activityCount < activities.length) {
-            activities[activityCount++] = activity;
-        } else {
-            Activity[] newActivities = new Activity[activities.length * 2];
-            System.arraycopy(activities, 0, newActivities, 0, activities.length);
-            activities = newActivities;
-            activities[activityCount++] = activity;
-        }
-    }
-
-    // Operator overloading for adding activities (using the + operator)
-    public LifeTracker plus(Activity activity) {
-        addActivity(activity);
-        return this;
-    }
-
-    public void removeActivity(String description) {
-        for (int i = 0; i < activityCount; i++) {
-            if (activities[i].getDescription().equals(description)) {
-                System.arraycopy(activities, i + 1, activities, i, activityCount - i - 1);
-                activityCount--;
+    public void removeGoal(String goalDescription) {
+        for (int i = 0; i < goalsCount; i++) {
+            if (goals[i].getDescription().equals(goalDescription)) {
+                System.arraycopy(goals, i + 1, goals, i, goalsCount - i - 1);
+                goalsCount--;
                 break;
             }
         }
     }
 
-    public Activity[] getActivities() {
-        Activity[] result = new Activity[activityCount];
-        System.arraycopy(activities, 0, result, 0, activityCount);
+    public Activity[] getGoals() {
+        Activity[] result = new Activity[goalsCount];
+        System.arraycopy(goals, 0, result, 0, goalsCount);
         return result;
     }
 
-    public Activity[] getGoals() {
-        return filterActivities(true);
+    public void addDailyTask(Activity task) {
+        if (dailyTasksCount < dailyTasks.length) {
+            dailyTasks[dailyTasksCount++] = task;
+        } else {
+            Activity[] newTasks = new Activity[dailyTasks.length * 2];
+            System.arraycopy(dailyTasks, 0, newTasks, 0, dailyTasks.length);
+            dailyTasks = newTasks;
+            dailyTasks[dailyTasksCount++] = task;
+        }
+    }
+
+    public void removeDailyTask(String taskDescription) {
+        for (int i = 0; i < dailyTasksCount; i++) {
+            if (dailyTasks[i].getDescription().equals(taskDescription)) {
+                System.arraycopy(dailyTasks, i + 1, dailyTasks, i, dailyTasksCount - i - 1);
+                dailyTasksCount--;
+                break;
+            }
+        }
     }
 
     public Activity[] getDailyTasks() {
-        return filterActivities(false);
-    }
-
-    private Activity[] filterActivities(boolean isGoal) {
-        int count = 0;
-        for (int i = 0; i < activityCount; i++) {
-            if (activities[i].isGoal() == isGoal) {
-                count++;
-            }
-        }
-        Activity[] result = new Activity[count];
-        int index = 0;
-        for (int i = 0; i < activityCount; i++) {
-            if (activities[i].isGoal() == isGoal) {
-                result[index++] = activities[i];
-            }
-        }
+        Activity[] result = new Activity[dailyTasksCount];
+        System.arraycopy(dailyTasks, 0, result, 0, dailyTasksCount);
         return result;
     }
 
     public double calculateBMI() {
-        double heightInMeters = height * 0.3048; // Convert feet to meters
-        return weight / (heightInMeters * heightInMeters);
+        return weight / (height * height);
     }
 
-    public final void displayLifeInfo() {
-        System.out.println("Name: " + name);
-        System.out.println("Age: " + age);
+    public void displayLifeInfo() {
+        System.out.println(super.getGreeting());  // Using the final method from the superclass
         System.out.println("Weight: " + weight + " kg");
-        System.out.println("Height: " + height + " ft");
+        System.out.println("Height: " + height + " m");
         System.out.println("BMI: " + String.format("%.2f", calculateBMI()));
-
-        System.out.println("Goals:");
-        Activity[] goals = getGoals();
-        if (goals.length > 0) {
-            for (Activity goal : goals) {
-                System.out.println("- " + goal);
-            }
-        } else {
-            System.out.println("No goals set");
+        System.out.print("Goals: ");
+        for (int i = 0; i < goalsCount; i++) {
+            System.out.print(goals[i].getDescription());
+            if (i < goalsCount - 1) System.out.print(", ");
         }
-
-        System.out.println("Daily Tasks:");
-        Activity[] dailyTasks = getDailyTasks();
-        if (dailyTasks.length > 0) {
-            for (Activity task : dailyTasks) {
-                System.out.println("- " + task);
-            }
-        } else {
-            System.out.println("No daily tasks set");
+        System.out.println();
+        System.out.print("Daily Tasks: ");
+        for (int i = 0; i < dailyTasksCount; i++) {
+            System.out.print(dailyTasks[i].getDescription());
+            if (i < dailyTasksCount - 1) System.out.print(", ");
         }
+        System.out.println();
     }
+
+    public LifeTracker plus(Activity activity) {
+        if (activity instanceof GoalActivity) {
+            addGoal(activity);
+        } else if (activity instanceof TaskActivity) {
+            addDailyTask(activity);
+        }
+        return this;
+    }
+
+    public void removeActivity(String activityDescription) {
+        removeGoal(activityDescription);
+        removeDailyTask(activityDescription);
+    }
+
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-
         System.out.print("Enter your name: ");
         String name = scanner.nextLine();
-
         System.out.print("Enter your age: ");
         int age = scanner.nextInt();
-
-        System.out.print("Enter your weight (in kg): ");
+        System.out.print("Enter your weight (kg): ");
         double weight = scanner.nextDouble();
-
-        System.out.print("Enter your height (in feet): ");
+        System.out.print("Enter your height (m): ");
         double height = scanner.nextDouble();
+        scanner.nextLine(); // Consume newline
 
         LifeTracker tracker = new LifeTracker(name, age, weight, height);
-
-        System.out.println("\nInitial Life Info:");
-        tracker.displayLifeInfo();
-
-        scanner.nextLine(); // Consume the newline
 
         while (true) {
             System.out.println("\nMenu:");
@@ -285,8 +224,10 @@ public class LifeTracker {
                     return;
 
                 default:
-                    System.out.println("Invalid choice. Please try again.");
+                    System.out.println("Invalid option. Please choose again.");
+                    continue;
             }
         }
     }
 }
+
